@@ -168,7 +168,7 @@ class WP_MS_REST_Networks_Controller extends WP_REST_Controller {
 
 		$prepared_args['no_found_rows'] = false;
 
-		if ( isset( $registered['page'] ) && empty( $request['offset'] ) ) {
+		if ( isset( $registered['page'] ) && isset( $prepared_args['number'] ) && empty( $request['offset'] ) ) {
 			$prepared_args['offset'] = $prepared_args['number'] * ( absint( $request['page'] ) - 1 );
 		}
 
