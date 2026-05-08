@@ -25,6 +25,17 @@ class WP_MS_Networks_Admin {
 	private $feedback_strings = array();
 
 	/**
+	 * Page hook suffixes returned by add_menu_page() and add_submenu_page().
+	 *
+	 * Used for enqueuing assets in a translation-safe way, since WordPress
+	 * constructs hook suffixes from the translated menu title.
+	 *
+	 * @since 3.0.1
+	 * @var array<int, string|false>
+	 */
+	private $page_hooks = array();
+
+	/**
 	 * Constructor.
 	 *
 	 * Hooks in the necessary methods.
@@ -107,8 +118,10 @@ class WP_MS_Networks_Admin {
 	public function network_admin_menu() {
 		$page = add_menu_page( esc_html__( 'Networks', 'wp-multi-network' ), esc_html__( 'Networks', 'wp-multi-network' ), 'manage_networks', 'networks', array( $this, 'route_pages' ), 'dashicons-networking', -1 );
 
+		$this->page_hooks[] = $page;
+
 		add_submenu_page( 'networks', esc_html__( 'All Networks', 'wp-multi-network' ), esc_html__( 'All Networks', 'wp-multi-network' ), 'list_networks', 'networks', array( $this, 'route_pages' ) );
-		add_submenu_page( 'networks', esc_html__( 'Add New', 'wp-multi-network' ), esc_html__( 'Add New', 'wp-multi-network' ), 'create_networks', 'add-new-network', array( $this, 'page_edit_network' ) );
+		$this->page_hooks[] = add_submenu_page( 'networks', esc_html__( 'Add New', 'wp-multi-network' ), esc_html__( 'Add New', 'wp-multi-network' ), 'create_networks', 'add-new-network', array( $this, 'page_edit_network' ) );
 
 		add_action( "admin_head-{$page}", array( $this, 'fix_menu_highlight_for_move_page' ) );
 
@@ -163,7 +176,7 @@ class WP_MS_Networks_Admin {
 	public function enqueue_scripts( $page = '' ) {
 
 		// Bail if not a network page.
-		if ( ! in_array( $page, array( 'toplevel_page_networks', 'networks_page_add-new-network' ), true ) ) {
+		if ( ! in_array( $page, $this->page_hooks, true ) ) {
 			return;
 		}
 
