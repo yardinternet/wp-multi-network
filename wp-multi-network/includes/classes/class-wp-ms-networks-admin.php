@@ -472,6 +472,21 @@ class WP_MS_Networks_Admin {
 									<input type="text" name="title" size="30" id="title" spellcheck="true" autocomplete="off" value="<?php echo esc_attr( $network_title ); ?>">
 								</div>
 							</div>
+
+							<?php if ( empty( $network ) ) : ?>
+								<div id="root-site-toggle">
+									<fieldset>
+										<label>
+											<input type="radio" name="root_site_option" value="new" checked>
+											<?php esc_html_e( 'Create new site', 'wp-multi-network' ); ?>
+										</label>
+										<label>
+											<input type="radio" name="root_site_option" value="existing">
+											<?php esc_html_e( 'Use existing site', 'wp-multi-network' ); ?>
+										</label>
+									</fieldset>
+								</div>
+							<?php endif; ?>
 						</div>
 
 						<div id="postbox-container-1" class="postbox-container">
@@ -1009,6 +1024,38 @@ class WP_MS_Networks_Admin {
 			? sanitize_text_field( wp_unslash( $_POST['new_site'] ) )
 			: $network_title; // Fallback to network title if not explicitly set.
 
+		// Root site option: 'new' (default) or 'existing'.
+		$root_site_option = ! empty( $_POST['root_site_option'] )
+			? sanitize_key( wp_unslash( $_POST['root_site_option'] ) )
+			: 'new';
+
+		$existing_site_id = 0;
+
+		if ( 'existing' === $root_site_option && ! empty( $_POST['existing_site_id'] ) ) {
+			$existing_site_id = absint( wp_unslash( $_POST['existing_site_id'] ) );
+
+			$existing_site = get_site( $existing_site_id );
+
+			// Validate the existing site.
+			if ( empty( $existing_site ) || is_main_site_for_network( $existing_site_id ) ) {
+				$this->handle_redirect(
+					array(
+						'page'            => 'add-new-network',
+						'network_created' => '0',
+					)
+				);
+			}
+
+			// Use the existing site's domain and path for the network.
+			$network_domain = $existing_site->domain;
+			$network_path   = $existing_site->path;
+			$site_name      = $existing_site->blogname;
+
+			if ( empty( $network_title ) ) {
+				$network_title = $existing_site->blogname;
+			}
+		}
+
 		// Bail if missing fields.
 		if ( empty( $network_domain ) || empty( $network_path ) ) {
 			$this->handle_redirect(
@@ -1028,6 +1075,11 @@ class WP_MS_Networks_Admin {
 			'clone_network'    => $clone,
 			'options_to_clone' => $options_to_clone,
 		);
+
+		// Use existing site as root site if selected.
+		if ( $existing_site_id > 0 ) {
+			$args['existing_blog_id'] = $existing_site_id;
+		}
 
 		// Add network.
 		$result = add_network( $args );
@@ -1357,7 +1409,7 @@ class WP_MS_Networks_Admin {
 	 * @since 2.0.0
 	 *
 	 * @param array<string, int|string> $args Optional. URL query arguments. Default empty array.
-	 * @return void
+	 * @return never
 	 */
 	private function handle_redirect( $args = array() ) {
 		wp_safe_redirect( $this->admin_url( $args ) );

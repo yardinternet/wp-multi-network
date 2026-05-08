@@ -1,12 +1,15 @@
 th.column-title {
 	width: 35%;
 }
+
 th.column-path {
 	width: 15%;
 }
+
 th.column-blogs {
 	width: 10%;
 }
+
 td.column-domain {
 	white-space: nowrap;
 	overflow: hidden;
@@ -123,6 +126,7 @@ table.assign-sites td.column-available {
 table.assign-sites td.column-assigned {
 	padding-right: 0;
 }
+
 table.assign-sites td.column-available,
 table.assign-sites td.column-assigned {
 	width: 42%;
@@ -135,8 +139,8 @@ table.assign-sites td.column-assigned {
 div.network-delete {
 	background: #fff;
 	border-right: 4px solid #dc3232;
-	-webkit-box-shadow: 0 1px 1px 0 rgba( 0, 0, 0, 0.1 );
-	box-shadow: 0 1px 1px 0 rgba( 0, 0, 0, 0.1 );
+	-webkit-box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.1);
+	box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.1);
 	margin: 5px 0 2px;
 	padding: 1px 12px;
 }
@@ -153,4 +157,16 @@ ul.delete-sites {
 
 ul.delete-sites li {
 	margin: 0;
+}
+
+#root-site-toggle {
+	margin-top: 12px;
+}
+
+#root-site-toggle label {
+	margin-left: 16px;
+}
+
+.root-site-existing {
+	display: none;
 }

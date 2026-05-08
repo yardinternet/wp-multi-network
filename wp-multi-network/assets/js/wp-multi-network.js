@@ -25,6 +25,19 @@ jQuery( document ).ready( function ( $ ) {
 		move( 'to', 'from' );
 	} );
 
+	/* Toggle root site option between new and existing */
+	$( 'input[name=root_site_option]' ).on( 'change', function () {
+		if ( $( this ).val() === 'existing' ) {
+			$( '.root-site-new' ).hide();
+			$( '.root-site-existing' ).show();
+			$( '#wpmn-edit-network-details' ).hide();
+		} else {
+			$( '.root-site-new' ).show();
+			$( '.root-site-existing' ).hide();
+			$( '#wpmn-edit-network-details' ).show();
+		}
+	} );
+
 	/* Select all sites in "selected" box when submitting */
 	$( '#edit-network-form' ).submit( function () {
 		$( '#to' ).children( 'option:enabled' ).attr( 'selected', true );

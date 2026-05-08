@@ -65,21 +65,55 @@ function wpmn_edit_network_details_metabox( $network = null ) {
  * Renders the metabox for defining the main site for a new network.
  *
  * @since 1.7.0
+ * @since NEXT Added support for selecting an existing site as root site.
+ *
  * @return void
  */
 function wpmn_edit_network_new_site_metabox() {
+
+	// Get all sites that are not main sites of any network.
+	$all_sites      = get_sites( array( 'number' => 0 ) );
+	$eligible_sites = array();
+
+	foreach ( $all_sites as $site ) {
+		if ( ! is_main_site_for_network( $site->id ) ) {
+			$eligible_sites[] = $site;
+		}
+	}
+
 	?>
 
 	<table class="edit-network form-table">
 		<?php do_action( 'wpmn_edit_network_new_site_metabox_before_group' ); ?>
 
-		<tr class="form-field form-required">
+		<tr class="form-field root-site-new">
 			<th scope="row">
 				<label for="new_site"><?php esc_html_e( 'Site Name', 'wp-multi-network' ); ?>:</label>
 			</th>
 			<td>
 				<input type="text" name="new_site" id="new_site" class="regular-text">
 				<p class="description"><?php esc_html_e( 'A new site needs to be created at the root of this network.', 'wp-multi-network' ); ?></p>
+			</td>
+		</tr>
+
+		<tr class="form-field root-site-existing">
+			<th scope="row">
+				<label for="existing_site_id"><?php esc_html_e( 'Select Site', 'wp-multi-network' ); ?>:</label>
+			</th>
+			<td>
+				<?php if ( ! empty( $eligible_sites ) ) : ?>
+					<select name="existing_site_id" id="existing_site_id" class="regular-text">
+						<option value=""><?php esc_html_e( '&mdash; Select &mdash;', 'wp-multi-network' ); ?></option>
+						<?php foreach ( $eligible_sites as $site ) : ?>
+							<option value="<?php echo esc_attr( strval( $site->id ) ); ?>" data-domain="<?php echo esc_attr( $site->domain ); ?>" data-path="<?php echo esc_attr( $site->path ); ?>">
+								<?php echo esc_html( sprintf( '%1$s (%2$s%3$s)', $site->blogname, $site->domain, $site->path ) ); ?>
+							</option>
+						<?php endforeach; ?>
+					</select>
+					<p class="description"><?php esc_html_e( 'The selected site will be moved to the new network as its root site.', 'wp-multi-network' ); ?></p>
+				<?php else : ?>
+					<p class="description"><?php esc_html_e( 'No eligible sites available. All existing sites are main sites of their networks.', 'wp-multi-network' ); ?></p>
+				<?php endif; ?>
 			</td>
 		</tr>
 
@@ -232,7 +266,7 @@ function wpmn_edit_network_publish_metabox( $network = null ) {
 					?>
 
 					<div class="misc-pub-section misc-pub-section-first" id="sites">
-						<span><?php esc_html_e( 'Creating a network with 1 new site.', 'wp-multi-network' ); ?></span>
+						<span><?php esc_html_e( 'Creating a network with 1 site.', 'wp-multi-network' ); ?></span>
 					</div>
 
 					<?php
